@@ -43,10 +43,8 @@ def entites_uniques(df):
     print(entites_uniques)
 
 
-cas_speciaux = ['abstentions', 'blancs', 'nuls']
-
-
 def creation_candidat(df):
+    cas_speciaux = ['abstentions', 'blancs', 'nuls']
     df['candidat'] = np.where(
         df['nom'].isin(cas_speciaux),
         df['nom'],
@@ -61,8 +59,13 @@ def aperçu_des_candidats(df):
 
 ######## QUESTION 2 ############
 
-def nb_candidats(df):
+def filtrer_candidats(df):
+    cas_speciaux = ['abstentions', 'blancs', 'nuls']
     df_candidats_uniquement = df[~df['candidat'].isin(cas_speciaux)]
+    return df_candidats_uniquement
+
+def nb_candidats(df):
+    df_candidats_uniquement = filtrer_candidats(df)
     candidats_reels = df_candidats_uniquement['candidat'].unique()
     candidats = len(candidats_reels)
     print(f"En 2022, il y avait {candidats} candidats à l'élection présidentielle.")
@@ -72,11 +75,10 @@ def nb_candidats(df):
 
 
 ######## QUESTION 3 ############
-
-def q3(df):
-    df_candidats_uniquement = df[~df['candidat'].isin(cas_speciaux)].copy()
+def scores_nationaux(df):
+    df_candidats_uniquement = filtrer_candidats(df).copy()
     total_exprimes = df_candidats_uniquement['voix'].sum()
-    scores_nationaux = (
+    df_scores_nationaux = (
         df_candidats_uniquement
         .groupby('candidat', as_index=False)['voix']
         .sum()
@@ -84,26 +86,19 @@ def q3(df):
         .sort_values('votes_national', ascending=False)
         .reset_index(drop=True)
     )
-    scores_nationaux['score_national'] = (
-        scores_nationaux['votes_national'] / total_exprimes * 100
+    df_scores_nationaux['score_national'] = (
+        df_scores_nationaux['votes_national'] / total_exprimes * 100
     ).round(2)
+    return df_scores_nationaux
+
+def q3(df):
+    df_scores_nationaux = scores_nationaux(df)
 
     # Affichage mis en forme
-    display_df = scores_nationaux.copy()
+    display_df = df_scores_nationaux.copy()
     display_df['votes_national'] = display_df['votes_national'].apply(lambda x: f"{x:,}".replace(',', ' '))
     display_df['score_national'] = display_df['score_national'].apply(lambda x: f"{x:.2f}%")
     display_df.columns = ['Candidat', 'Nombre votes (total)', 'Score (% votes exprimés)']
 
     print("Résultats du premier tour (10 avril 2022)")
     print(display_df)
-
-
-
-
-import pandas as pd
-df = pd.read_csv(
- 'https://www.data.gouv.fr/fr/datasets/r/182268fc-2103-4bcb-a850-6cf90b02a9eb'
-)
-
-
-
