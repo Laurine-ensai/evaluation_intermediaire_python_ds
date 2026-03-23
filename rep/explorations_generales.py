@@ -1,104 +1,116 @@
 import numpy as np
 
-######## QUESTION 1 (a) ############
+CAS_SPECIAUX = ["abstentions", "blancs", "nuls"]
+
+# QUESTION 1 (a)
+
 
 def taille_max_code_commune(df):
-    taille_max = df['code_commune'].astype(str).str.len().max()
+    taille_max = df["code_commune"].astype(str).str.len().max()
     print(f"La taille maximale du code commune est de {taille_max} caractères.")
 
 
 def nb_occurence_longueur_code_departement(df):
-    print(df['code_departement'].astype(str).str.len().value_counts())
+    print(df["code_departement"].astype(str).str.len().value_counts())
 
 
 def departement_11_caractères(df):
-    df_louche = df[df['code_departement'].astype(str).str.len() == 11]
+    df_louche = df[df["code_departement"].astype(str).str.len() == 11]
     print("Valeurs suspectes dans code_departement :")
-    print(df_louche['code_departement'].unique())
+    print(df_louche["code_departement"].unique())
     print("\nExtrait des lignes correspondantes :")
     print(df_louche.head())
 
 
 def maj_code_commune(df):
-    df['code_commune'] = (
-        df['code_departement'].astype(str) +
-        df['code_commune'].astype(str).str.zfill(3)
-    )
+    df["code_commune"] = df["code_departement"].astype(str) + df["code_commune"].astype(
+        str
+    ).str.zfill(3)
 
 
 def verification_Montrouge(df):
     print("Exemple Montrouge :")
-    print(df[df['libelle_commune'].str.contains('Montrouge', na=False)][['code_commune', 'libelle_commune']].drop_duplicates().head())
+    print(
+        df[df["libelle_commune"].str.contains("Montrouge", na=False)][
+            ["code_commune", "libelle_commune"]
+        ]
+        .drop_duplicates()
+        .head()
+    )
 
 
-######## QUESTION 1 (b) ############
+# QUESTION 1 (b)
+
 
 def entites_uniques(df):
     entites_uniques = (
-        df[['nom', 'prenom']]
+        df[["nom", "prenom"]]
         .drop_duplicates()
-        .sort_values('nom')
+        .sort_values("nom")
         .reset_index(drop=True)
     )
     print(entites_uniques)
 
 
 def creation_candidat(df):
-    cas_speciaux = ['abstentions', 'blancs', 'nuls']
-    df['candidat'] = np.where(
-        df['nom'].isin(cas_speciaux),
-        df['nom'],
-        df['prenom'].astype(str) + ' ' + df['nom'].astype(str)
+    df["candidat"] = np.where(
+        df["nom"].isin(CAS_SPECIAUX),
+        df["nom"],
+        df["prenom"].astype(str) + " " + df["nom"].astype(str),
     )
 
 
 def aperçu_des_candidats(df):
     print("\nAperçu des candidats :")
-    print(df['candidat'].unique()[:5])
+    print(df["candidat"].unique())
 
 
-######## QUESTION 2 ############
+# QUESTION 2
+
 
 def filtrer_candidats(df):
-    cas_speciaux = ['abstentions', 'blancs', 'nuls']
-    df_candidats_uniquement = df[~df['candidat'].isin(cas_speciaux)]
-    return df_candidats_uniquement
+    return df[~df["candidat"].isin(CAS_SPECIAUX)].copy()
 
-def nb_candidats(df):
-    df_candidats_uniquement = filtrer_candidats(df)
-    candidats_reels = df_candidats_uniquement['candidat'].unique()
+
+def nb_candidats(df_candidats_uniquement):
+    candidats_reels = df_candidats_uniquement["candidat"].unique()
     candidats = len(candidats_reels)
     print(f"En 2022, il y avait {candidats} candidats à l'élection présidentielle.")
     print("\nListe des candidats :")
-    for c in sorted(candidats_reels):
+    for c in candidats_reels:
         print(f"  - {c}")
 
 
-######## QUESTION 3 ############
-def scores_nationaux(df):
-    df_candidats_uniquement = filtrer_candidats(df).copy()
-    total_exprimes = df_candidats_uniquement['voix'].sum()
+# QUESTION 3
+def scores_nationaux(df_candidats_uniquement):
+    total_exprimes = df_candidats_uniquement["voix"].sum()
     df_scores_nationaux = (
-        df_candidats_uniquement
-        .groupby('candidat', as_index=False)['voix']
+        df_candidats_uniquement.groupby("candidat", as_index=False)["voix"]
         .sum()
-        .rename(columns={'voix': 'votes_national'})
-        .sort_values('votes_national', ascending=False)
+        .rename(columns={"voix": "votes_national"})
+        .sort_values("votes_national", ascending=False)
         .reset_index(drop=True)
     )
-    df_scores_nationaux['score_national'] = (
-        df_scores_nationaux['votes_national'] / total_exprimes * 100
+    df_scores_nationaux["score_national"] = (
+        df_scores_nationaux["votes_national"] / total_exprimes * 100
     ).round(2)
     return df_scores_nationaux
 
-def q3(df):
-    df_scores_nationaux = scores_nationaux(df)
 
+def tableau_scores_nationaux(df_scores_nationaux):
     # Affichage mis en forme
     display_df = df_scores_nationaux.copy()
-    display_df['votes_national'] = display_df['votes_national'].apply(lambda x: f"{x:,}".replace(',', ' '))
-    display_df['score_national'] = display_df['score_national'].apply(lambda x: f"{x:.2f}%")
-    display_df.columns = ['Candidat', 'Nombre votes (total)', 'Score (% votes exprimés)']
+    display_df["votes_national"] = display_df["votes_national"].apply(
+        lambda x: f"{x:,}".replace(",", " ")
+    )
+    display_df["score_national"] = display_df["score_national"].apply(
+        lambda x: f"{x:.2f}%"
+    )
+    display_df.columns = [
+        "Candidat",
+        "Nombre votes (total)",
+        "Score (% votes exprimés)",
+    ]
 
     print("Résultats du premier tour (10 avril 2022)")
     print(display_df)
