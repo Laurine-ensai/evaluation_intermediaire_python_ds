@@ -36,7 +36,6 @@ def trouver_colonne_departement(gdf):
 
 # Fonction de cartographie :
 
-
 def cartographier_candidat(score_departements, departement_borders, candidat):
     # filtrage du candidat
     df_candidat = score_departements.loc[
