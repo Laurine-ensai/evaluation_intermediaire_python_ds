@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
-import cartiflette
+from cartiflette import carti_download
 
 # Question 8
-
-from cartiflette import carti_download
 departement_borders = carti_download(
  values = ["France"],
  crs = 4326,

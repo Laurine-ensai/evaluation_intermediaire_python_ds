@@ -1,4 +1,5 @@
 import numpy as np
+from great_tables import GT, html, style, loc
 
 CAS_SPECIAUX = ["abstentions", "blancs", "nuls"]
 
@@ -114,3 +115,37 @@ def tableau_scores_nationaux(df_scores_nationaux):
 
     print("Résultats du premier tour (10 avril 2022)")
     print(display_df)
+
+
+def tableau_scores_nationaux_gt(df_scores_nationaux):
+    # création de l'objet GT
+    st_table = (
+        GT(df_scores_nationaux)
+        .tab_header(
+            title="Elections",
+            subtitle="Résultats du premier tour (10 avril 2022)"
+        )
+        .cols_label(
+            candidat="Candidat",
+            votes_national="Nombre votes (total)",
+            score_national="Score (% votes exprimés.)"
+        )
+        # Formatage des nombres (séparateur de milliers)
+        .fmt_number(
+            columns="votes_national",
+            sep_mark=" ",
+            decimals=0
+        )
+        # Formatage des pourcentages
+        .fmt_percent(
+            columns="score_national",
+            decimals=2,
+            scale_values=False
+        )
+        .tab_style(
+            style=style.text(weight="bold"),
+            locations=loc.body(columns="candidat")
+        )
+    )  
+    return st_table
+

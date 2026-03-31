@@ -2,3 +2,4 @@ matplotlib==3.10.8
 numpy==2.4.4
 cartiflette==0.1.9
 pandas==2.3.3
+great_tables==0.21.0

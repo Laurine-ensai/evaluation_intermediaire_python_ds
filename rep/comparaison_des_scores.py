@@ -74,19 +74,6 @@ def creation_surrepresentation(score_departements):
     ).round(2)
 
 
-def apercu_surrepresentation(score_departements):
-    print("Aperçu avec la variable surrepresentation :")
-    print(
-        score_departements[
-            [
-                "code_departement",
-                "candidat",
-                "score_departement",
-                "score_national",
-                "surrepresentation",
-            ]
-        ].head(10)
-    )
 
 
 # QUESTION 7
